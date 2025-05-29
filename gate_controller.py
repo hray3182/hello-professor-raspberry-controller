@@ -1,11 +1,13 @@
 import time
 import RPi.GPIO as GPIO
+import requests
 from moto import MotorController
 from ultrasonic import UltrasonicController
 
 class GateController:
-    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, threshold_cm=30):
+    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, api_url, threshold_cm=30):
         self.sensor_name = sensor_name
+        self.api_url = api_url
         # It's good practice to ensure GPIO mode is set before using pins.
         # However, if other modules also set it, this might cause warnings if not coordinated.
         # For now, assuming it's handled globally or in each component.
@@ -25,23 +27,35 @@ class GateController:
                 if car_detected:
                     self.leave_count = 0
                     if not self.has_opened:
-                        self.enter_count += 1
-                        if self.enter_count >= 2:
-                            print(f"[{self.sensor_name}] 進入次數：{self.enter_count}")
-                            print(f"[{self.sensor_name}] 偵測到車輛 → 開啟柵欄")
-                            print('輸出API到手機頁面要求拍照')
-                            self.motor.open_gate()
-                            self.has_opened = True
+                        print(f"[{self.sensor_name}] 偵測到車輛，準備呼叫車牌辨識 API...")
+                        try:
+                            response = requests.get(self.api_url, timeout=5)
+                            response.raise_for_status()
+                            api_data = response.json()
+                            print(f"[{self.sensor_name}] API 回應: {api_data}")
+
+                            if api_data.get("ocr_format_valid") is True and "License plate detected" in api_data.get("message", ""):
+                                print(f"[{self.sensor_name}] 車牌辨識成功且格式有效 ({api_data.get('ocr_text_cleaned')}) → 開啟柵欄")
+                                self.motor.open_gate()
+                                self.has_opened = True
+                                self.enter_count = 0
+                            else:
+                                print(f"[{self.sensor_name}] 車牌辨識失敗或格式無效。API原始訊息: {api_data.get('message')}")
+
+                        except requests.exceptions.RequestException as e:
+                            print(f"[{self.sensor_name}] 呼叫 API 時發生錯誤: {e}")
+                        except ValueError:
+                            print(f"[{self.sensor_name}] 解析 API 回應失敗 (非 JSON 格式)")
                 else:
-                    self.enter_count = 0
                     if self.has_opened:
                         self.leave_count += 1
-                        print(f"[{self.sensor_name}] 離開次數：{self.leave_count}")
+                        print(f"[{self.sensor_name}] 車輛可能離開，離開偵測計數：{self.leave_count}")
                         if self.leave_count >= 2:
-                            print(f"[{self.sensor_name}] 車輛離開確認 → 關閉柵欄")
+                            print(f"[{self.sensor_name}] 確認車輛已離開 → 關閉柵欄")
                             self.motor.close_gate()
                             self.has_opened = False
                             self.leave_count = 0
+                            self.enter_count = 0
                 time.sleep(1)
         except Exception as e:
             print(f"[{self.sensor_name}]監測時發生錯誤: {e}")
