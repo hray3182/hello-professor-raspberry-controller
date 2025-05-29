@@ -20,8 +20,8 @@ if __name__ == "__main__":
     led_managers = [] # Though we only have one in this example
 
     try:
-        gate1_controller = GateController(sensor_name="入口", trig_pin=hc.GATE1_TRIG_PIN, echo_pin=hc.GATE1_ECHO_PIN, motor_pin=hc.GATE1_MOTOR_PIN, api_url=hc.LICENSE_PLATE_API_URL)
-        gate2_controller = GateController(sensor_name="出口", trig_pin=hc.GATE2_TRIG_PIN, echo_pin=hc.GATE2_ECHO_PIN, motor_pin=hc.GATE2_MOTOR_PIN, api_url=hc.LICENSE_PLATE_API_URL, open_angle=90, close_angle=180)
+        gate1_controller = GateController(sensor_name="入口", trig_pin=hc.GATE1_TRIG_PIN, echo_pin=hc.GATE1_ECHO_PIN, motor_pin=hc.GATE1_MOTOR_PIN, api_url=hc.GATE1_API_URL)
+        gate2_controller = GateController(sensor_name="出口", trig_pin=hc.GATE2_TRIG_PIN, echo_pin=hc.GATE2_ECHO_PIN, motor_pin=hc.GATE2_MOTOR_PIN, api_url=hc.GATE2_API_URL)
         gate_controllers.extend([gate1_controller, gate2_controller])
 
         led_main_manager = LEDManager(hc.LED_PINS)

@@ -15,5 +15,8 @@ LED_PINS = {
     "red4": 11, "red5": 15, "red6": 19
 }
 
-# API config
-LICENSE_PLATE_API_URL = "https://dev8000.hraydev.xyz/capture"
+# API Configuration
+# LICENSE_PLATE_API_URL = "https://dev8000.hraydev.xyz/capture" # 舊的可以移除或註解
+
+GATE1_API_URL = "https://dev8000.hraydev.xyz/entry/capture"
+GATE2_API_URL = "https://dev8000.hraydev.xyz/exit/capture"
