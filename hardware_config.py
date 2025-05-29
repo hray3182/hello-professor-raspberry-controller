@@ -14,3 +14,6 @@ LED_PINS = {
     "red1": 3, "red2": 5, "red3": 7,
     "red4": 11, "red5": 15, "red6": 19
 }
+
+# API config
+LICENSE_PLATE_API_URL = "https://dev8000.hraydev.xyz/capture"
