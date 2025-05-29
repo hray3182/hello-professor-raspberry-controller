@@ -33,12 +33,12 @@ class MotorController:
         self.angle = 0
         self.setDirection()
     
-    def open_gate(self):
-        self.angle = 180 
+    def open_gate(self, angle=180):
+        self.angle = angle 
         self.setDirection()
     
-    def close_gate(self):
-        self.angle = 90
+    def close_gate(self, angle=90):
+        self.angle = angle
         self.setDirection()
 
     def test(self):
