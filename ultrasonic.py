@@ -57,13 +57,13 @@ class UltrasonicController:
         GPIO.cleanup()
 
 # 測試程式區塊（只有在直接執行這個檔案時才會跑）
-# if __name__ == "__main__":
-#     try:
-#         sensor = UltrasonicController(trig_pin=36, echo_pin=38)
-#         while True:
-#             car = sensor.check_for_car()
-#             time.sleep(1)
-#     except KeyboardInterrupt:
-#         print("\n[EXIT] 手動中止")
-#     finally:
-#         sensor.cleanup()
+if __name__ == "__main__":
+    try:
+        sensor = UltrasonicController(trig_pin=36, echo_pin=38)
+        while True:
+            car = sensor.check_for_car()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n[EXIT] 手動中止")
+    finally:
+        sensor.cleanup()
