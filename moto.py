@@ -3,13 +3,15 @@ import time
 
 
 class MotorController:
-    def __init__(self, pin):
+    def __init__(self, pin, open_angle=180, close_angle=90):
         self.pin = pin
         self.angle = 0
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz frequency
         self.pwm.start(0)
+        self.open_angle = open_angle
+        self.close_angle = close_angle
 
     def destroy(self):
         self.pwm.stop()

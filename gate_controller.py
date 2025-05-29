@@ -5,7 +5,7 @@ from moto import MotorController
 from ultrasonic import UltrasonicController
 
 class GateController:
-    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, api_url, threshold_cm=30):
+    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, api_url, threshold_cm=30, open_angle=180, close_angle=90):
         self.sensor_name = sensor_name
         self.api_url = api_url
         # It's good practice to ensure GPIO mode is set before using pins.
