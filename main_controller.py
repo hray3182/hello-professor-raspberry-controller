@@ -17,7 +17,7 @@ if __name__ == "__main__":
     GPIO.setwarnings(False) # Optional: disable warnings
 
     gate_controllers = []
-    led_managers = [] # Though we only have one in this example
+    # led_managers = [] # Though we only have one in this example
 
     try:
         gate1_controller = GateController(sensor_name="入口", 
@@ -36,16 +36,16 @@ if __name__ == "__main__":
         
         gate_controllers.extend([gate1_controller, gate2_controller])
 
-        led_main_manager = LEDManager(hc.LED_PINS)
-        led_managers.append(led_main_manager)
+        # led_main_manager = LEDManager(hc.LED_PINS)
+        # led_managers.append(led_main_manager)
 
         gate1_thread = threading.Thread(target=run_gate_monitor, args=(gate1_controller,), daemon=True)
         gate2_thread = threading.Thread(target=run_gate_monitor, args=(gate2_controller,), daemon=True)
-        led_thread = threading.Thread(target=run_led_control, args=(led_main_manager,), daemon=True)
+        # led_thread = threading.Thread(target=run_led_control, args=(led_main_manager,), daemon=True)
 
         gate1_thread.start()
         gate2_thread.start()
-        led_thread.start()
+        # led_thread.start()
 
         print("🚀 系統啟動完成，按 Ctrl+C 可中止所有任務")
         while True:
@@ -63,15 +63,15 @@ if __name__ == "__main__":
         for gc in gate_controllers:
             gc.stop_monitoring()
 
-        print("💡 正在停止LED控制器...")
-        for lm in led_managers: # Corrected variable name here
-            lm.stop_monitoring()
+        # print("💡 正在停止LED控制器...")
+        # for lm in led_managers: # Corrected variable name here
+            # lm.stop_monitoring()
         
         # Wait for threads to finish their cleanup if they have long-running cleanup tasks
         # This might be overly cautious if stop_monitoring is quick
         if 'gate1_thread' in locals() and gate1_thread.is_alive(): gate1_thread.join(timeout=5)
         if 'gate2_thread' in locals() and gate2_thread.is_alive(): gate2_thread.join(timeout=5)
-        if 'led_thread' in locals() and led_thread.is_alive(): led_thread.join(timeout=5)
+        # if 'led_thread' in locals() and led_thread.is_alive(): led_thread.join(timeout=5)
 
         GPIO.cleanup()
         print("✅ 所有 GPIO 腳位已清理完成，安全結束")
