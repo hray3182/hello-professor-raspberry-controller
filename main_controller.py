@@ -25,7 +25,6 @@ if __name__ == "__main__":
                                         echo_pin=hc.GATE1_ECHO_PIN, 
                                         motor_pin=hc.GATE1_MOTOR_PIN, 
                                         api_url=hc.GATE1_API_URL, 
-                                        parking_record_api_url=hc.PARKING_RECORD_ENTRY_API_URL,
                                         threshold_cm=10)
         
         gate2_controller = GateController(sensor_name="出口", 
