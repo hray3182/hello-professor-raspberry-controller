@@ -3,7 +3,6 @@ import time
 import RPi.GPIO as GPIO
 import hardware_config as hc
 from gate_controller import GateController
-from led_manager import LEDManager
 
 def run_gate_monitor(gate_controller_instance):
     gate_controller_instance.monitor()
@@ -50,7 +49,7 @@ if __name__ == "__main__":
         print("🚀 系統啟動完成，按 Ctrl+C 可中止所有任務")
         while True:
             # Check if any thread has died, for more robust error handling if needed
-            if not gate1_thread.is_alive() or not gate2_thread.is_alive() or not led_thread.is_alive():
+            if not gate1_thread.is_alive() or not gate2_thread.is_alive():
                 print("⚠️ 注意：有一個或多個執行緒已停止運作。")
                 # Optionally, attempt to restart threads or perform other recovery actions here
                 break # Exit main loop if a critical thread dies
