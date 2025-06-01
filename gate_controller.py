@@ -42,37 +42,6 @@ class GateController:
                                 self.has_opened = True
                                 self.enter_count = 0
 
-                                if self.parking_record_api_url and self.sensor_name == "入口":
-                                    captured_image_path = "/tmp/current_capture.jpg"
-
-                                    if not os.path.exists(captured_image_path):
-                                        print(f"[{self.sensor_name}] 錯誤：找不到擷取的圖片檔案 tại {captured_image_path}")
-                                    else:
-                                        try:
-                                            with open(captured_image_path, 'rb') as img_file:
-                                                files_to_upload = {
-                                                    'image': (os.path.basename(captured_image_path), img_file, 'image/jpeg') 
-                                                }
-                                                parking_data = {
-                                                    'licensePlate': license_plate_text
-                                                }
-                                            
-                                                print(f"[{self.sensor_name}] 準備透過 multipart/form-data 呼叫停車記錄 API: {self.parking_record_api_url}")
-                                                record_response = requests.post(
-                                                    self.parking_record_api_url,
-                                                    files=files_to_upload,
-                                                    data=parking_data,
-                                                    timeout=10 
-                                                )
-                                                record_response.raise_for_status()
-                                                print(f"[{self.sensor_name}] 停車記錄 API (multipart) 呼叫成功: {record_response.status_code} - {record_response.text}")
-                                        
-                                        except FileNotFoundError:
-                                            print(f"[{self.sensor_name}] 錯誤：圖片檔案 {captured_image_path} 在準備上傳時找不到。")
-                                        except requests.exceptions.RequestException as record_e:
-                                            print(f"[{self.sensor_name}] 呼叫停車記錄 API (multipart) 時發生錯誤: {record_e}")
-                                        except Exception as generic_e: 
-                                            print(f"[{self.sensor_name}] 處理停車記錄 API (multipart) 呼叫時發生未知錯誤: {generic_e}")
                             else:
                                 print(f"[{self.sensor_name}] 車牌格式無效或 API 未返回有效格式。API原始訊息: {api_data.get('message', '無法取得訊息')}")
 
