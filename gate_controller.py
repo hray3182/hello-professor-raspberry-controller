@@ -36,8 +36,9 @@ class GateController:
                             
                             # 為了避免日誌過長，複製一份回應資料並移除 image 欄位 (如果存在)
                             api_data_for_log = api_data.copy()
-                            if 'image' in api_data_for_log:
-                                api_data_for_log['image'] = "<image_data_omitted_for_log>"
+                            if 'data' in api_data_for_log:
+                                if 'image' in api_data_for_log['data']:
+                                    api_data_for_log['data']['image'] = "<image_data_omitted_for_log>"
                             print(f"[{self.sensor_name}] 車牌辨識 API 回應: {api_data_for_log}")
 
                             if api_data.get("ocr_format_valid") is True:
@@ -51,11 +52,13 @@ class GateController:
                                         payment_response.raise_for_status()
                                         payment_data = payment_response.json()
                                         payment_data_for_log = payment_data.copy()
-                                        if 'image' in payment_data_for_log:
-                                            payment_data_for_log['image'] = "<image_data_omitted_for_log>"
+                                        if 'data' in payment_data_for_log:
+                                            if 'image' in payment_data_for_log['data']:
+                                                payment_data_for_log['data']['image'] = "<image_data_omitted_for_log>"
                                         print(f"[{self.sensor_name}] 付款狀態 API 回應: {payment_data_for_log}")
                                         
-                                        if payment_data.get("PaymentStatus") == "Paid":
+                                        # data.PaymentStatus
+                                        if payment_data.get("data", {}).get("PaymentStatus") == "Paid":
                                             print(f"[{self.sensor_name}] 付款狀態為 'Paid' → 開啟柵欄")
                                             self.motor.open_gate()
                                             self.has_opened = True
