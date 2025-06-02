@@ -33,7 +33,12 @@ class GateController:
                             response = requests.get(self.api_url, timeout=5)
                             response.raise_for_status()
                             api_data = response.json()
-                            print(f"[{self.sensor_name}] 車牌辨識 API 回應: {api_data}")
+                            
+                            # 為了避免日誌過長，複製一份回應資料並移除 image 欄位 (如果存在)
+                            api_data_for_log = api_data.copy()
+                            if 'image' in api_data_for_log:
+                                api_data_for_log['image'] = "<image_data_omitted_for_log>"
+                            print(f"[{self.sensor_name}] 車牌辨識 API 回應: {api_data_for_log}")
 
                             if api_data.get("ocr_format_valid") is True:
                                 self.last_recognized_plate = api_data.get('ocr_text_cleaned', 'N/A')
