@@ -50,7 +50,10 @@ class GateController:
                                         payment_response = requests.get(payment_check_url, timeout=5)
                                         payment_response.raise_for_status()
                                         payment_data = payment_response.json()
-                                        print(f"[{self.sensor_name}] 付款狀態 API 回應: {payment_data}")
+                                        payment_data_for_log = payment_data.copy()
+                                        if 'image' in payment_data_for_log:
+                                            payment_data_for_log['image'] = "<image_data_omitted_for_log>"
+                                        print(f"[{self.sensor_name}] 付款狀態 API 回應: {payment_data_for_log}")
                                         
                                         if payment_data.get("PaymentStatus") == "Paid":
                                             print(f"[{self.sensor_name}] 付款狀態為 'Paid' → 開啟柵欄")
