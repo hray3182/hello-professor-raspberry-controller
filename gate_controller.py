@@ -47,7 +47,7 @@ class GateController:
                                         payment_data = payment_response.json()
                                         print(f"[{self.sensor_name}] 付款狀態 API 回應: {payment_data}")
                                         
-                                        if payment_data.get("payment_status") == "Paid":
+                                        if payment_data.get("PaymentStatus") == "Paid":
                                             print(f"[{self.sensor_name}] 付款狀態為 'Paid' → 開啟柵欄")
                                             self.motor.open_gate()
                                             self.has_opened = True
