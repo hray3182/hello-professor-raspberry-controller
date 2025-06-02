@@ -51,14 +51,23 @@ class GateController:
                                         payment_response = requests.get(payment_check_url, timeout=5)
                                         payment_response.raise_for_status()
                                         payment_data = payment_response.json()
+                                        
+                                        # 為了避免日誌過長，複製一份回應資料並處理 image 欄位
                                         payment_data_for_log = payment_data.copy()
-                                        if 'data' in payment_data_for_log:
-                                            if 'image' in payment_data_for_log['data']:
-                                                payment_data_for_log['data']['image'] = "<image_data_omitted_for_log>"
+                                        if 'data' in payment_data_for_log and isinstance(payment_data_for_log['data'], list):
+                                            for record in payment_data_for_log['data']:
+                                                if isinstance(record, dict) and 'image' in record:
+                                                    record['image'] = "<image_data_omitted_for_log>"
                                         print(f"[{self.sensor_name}] 付款狀態 API 回應: {payment_data_for_log}")
                                         
-                                        # data.PaymentStatus
-                                        if payment_data.get("data", {}).get("PaymentStatus") == "Paid":
+                                        # 檢查 payment_data["data"][0]["PaymentStatus"]
+                                        payment_status = None
+                                        if payment_data and isinstance(payment_data.get("data"), list) and len(payment_data["data"]) > 0:
+                                            first_record = payment_data["data"][0]
+                                            if isinstance(first_record, dict):
+                                                payment_status = first_record.get("PaymentStatus")
+                                        
+                                        if payment_status == "Paid":
                                             print(f"[{self.sensor_name}] 付款狀態為 'Paid' → 開啟柵欄")
                                             self.motor.open_gate()
                                             self.has_opened = True
