@@ -31,7 +31,8 @@ if __name__ == "__main__":
                                         echo_pin=hc.GATE2_ECHO_PIN, 
                                         motor_pin=hc.GATE2_MOTOR_PIN, 
                                         api_url=hc.GATE2_API_URL,
-                                        threshold_cm=10)
+                                        threshold_cm=10,
+                                        parking_exit_record_api_url=hc.PARKING_RECORD_EXIT_API_URL)
         
         gate_controllers.extend([gate1_controller, gate2_controller])
 

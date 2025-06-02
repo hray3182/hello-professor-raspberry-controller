@@ -20,3 +20,7 @@ LED_PINS = {
 
 GATE1_API_URL = "https://dev8000.hraydev.xyz/entry/capture"
 GATE2_API_URL = "https://dev8000.hraydev.xyz/exit/capture"
+
+# API for Parking Records
+PARKING_RECORD_ENTRY_API_URL = "http://localhost:8080/api/v1/parking-records/entry" # 雖然目前未使用，但保留定義
+PARKING_RECORD_EXIT_API_URL = "https://api-hello-professor.zeabur.app/api/v1/parking-records/exit" # 新增出口記錄 API

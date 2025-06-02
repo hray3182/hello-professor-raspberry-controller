@@ -3,17 +3,15 @@ import RPi.GPIO as GPIO
 import requests
 from moto import MotorController
 from ultrasonic import UltrasonicController
-import os
 
 class GateController:
-    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, api_url, threshold_cm=30, open_angle=180, close_angle=90):
+    def __init__(self, sensor_name, trig_pin, echo_pin, motor_pin, api_url, threshold_cm=30, open_angle=180, close_angle=90, parking_record_api_url=None, parking_exit_record_api_url=None):
         self.sensor_name = sensor_name
         self.api_url = api_url
-        # It's good practice to ensure GPIO mode is set before using pins.
-        # However, if other modules also set it, this might cause warnings if not coordinated.
-        # For now, assuming it's handled globally or in each component.
+        self.parking_record_api_url = parking_record_api_url
+        self.parking_exit_record_api_url = parking_exit_record_api_url
         self.sensor = UltrasonicController(trig_pin, echo_pin, threshold_cm=threshold_cm)
-        self.motor = MotorController(motor_pin)
+        self.motor = MotorController(motor_pin, open_angle=open_angle, close_angle=close_angle)
         self.has_opened = False
         self.leave_count = 0
         self.enter_count = 0
@@ -37,11 +35,28 @@ class GateController:
 
                             if api_data.get("ocr_format_valid") is True:
                                 license_plate_text = api_data.get('ocr_text_cleaned', 'N/A')
-                                print(f"[{self.sensor_name}] 車牌格式有效 ({license_plate_text}) → 開啟柵欄")
-                                self.motor.open_gate()
-                                self.has_opened = True
-                                self.enter_count = 0
-
+                                
+                                if self.sensor_name == "出口" and self.parking_exit_record_api_url:
+                                    print(f"[{self.sensor_name}] 車牌格式有效 ({license_plate_text})，準備呼叫出口記錄 API...")
+                                    exit_payload = {"licensePlate": license_plate_text}
+                                    try:
+                                        exit_response = requests.post(self.parking_exit_record_api_url, json=exit_payload, timeout=5)
+                                        print(f"[{self.sensor_name}] 出口記錄 API 回應狀態碼: {exit_response.status_code}")
+                                        if exit_response.status_code == 200:
+                                            print(f"[{self.sensor_name}] 出口記錄 API 成功 (200) → 開啟柵欄")
+                                            self.motor.open_gate()
+                                            self.has_opened = True
+                                            self.enter_count = 0
+                                        else:
+                                            print(f"[{self.sensor_name}] 出口記錄 API 失敗 (狀態碼: {exit_response.status_code})，柵欄不開啟。回應: {exit_response.text}")
+                                    except requests.exceptions.RequestException as exit_e:
+                                        print(f"[{self.sensor_name}] 呼叫出口記錄 API 時發生錯誤: {exit_e}，柵欄不開啟。")
+                                
+                                elif self.sensor_name != "出口" or not self.parking_exit_record_api_url:
+                                    print(f"[{self.sensor_name}] 車牌格式有效 ({license_plate_text}) → 開啟柵欄 (非出口記錄流程或出口記錄API未設定)")
+                                    self.motor.open_gate()
+                                    self.has_opened = True
+                                    self.enter_count = 0
                             else:
                                 print(f"[{self.sensor_name}] 車牌格式無效或 API 未返回有效格式。API原始訊息: {api_data.get('message', '無法取得訊息')}")
 
@@ -63,16 +78,11 @@ class GateController:
         except Exception as e:
             print(f"[{self.sensor_name}]監測時發生錯誤: {e}")
         finally:
-            # This cleanup is now part of stop_monitoring
-            # to be called explicitly when the thread is asked to stop.
             pass
-
 
     def stop_monitoring(self):
         self.running = False
         print(f"[{self.sensor_name}] 停止監測")
-        # Ensure motor and sensor resources are cleaned up.
-        # These methods should exist in your MotorController and UltrasonicController
         if hasattr(self.motor, 'destroy'):
             self.motor.destroy()
         if hasattr(self.sensor, 'cleanup'):
